@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
 
   # Provision the VMs using Ansible
   config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "playbook.yml"  # Specify the Ansible playbook to run
-    ansible.inventory_path = "inventory.ini"  # Use the provided Ansible inventory file
+    ansible.playbook = "provisioning/playbook.yml"  # Specify the Ansible playbook to run
+    ansible.inventory_path = "provisioning/inventory.ini"  # Use the provided Ansible inventory file
   end
-end
+end 
