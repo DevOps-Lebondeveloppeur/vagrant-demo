@@ -1,0 +1,22 @@
+# Ansible specific
+*.retry
+*.log
+*.swp
+*.bak
+*.tmp
+*.vagrant
+host_vars/
+group_vars/
+
+# Vagrant specific
+.vagrant/
+*.vagrant
+*.box
+vagrant.log
+*.yml~ 
+.vagrant-ssh-config
+.vagrant/machines/
+
+# OS generated files
+.DS_Store
+Thumbs.db

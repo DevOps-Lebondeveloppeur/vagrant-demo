@@ -1,0 +1,96 @@
+- name: Install Docker, Nginx, and Docker Compose on Ubuntu
+  hosts: vps  # Target the 'vps' group (defined in the inventory file)
+  become: true  # Run all tasks as a privileged user (root)
+
+  tasks:
+
+    # Update the package list (apt cache) to ensure we get the latest package versions
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    # Install required dependencies for Docker
+    - name: Install required dependencies for Docker
+      apt:
+        name:
+          - ca-certificates  # Ensures secure HTTPS connections
+          - curl  # Command-line tool for downloading files
+          - gnupg  # Required for adding GPG keys
+        state: present  # Ensure these packages are installed
+
+    # Add Docker's official GPG key (used to verify Docker packages)
+    - name: Add Docker's official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg  # URL of Docker's GPG key
+        state: present  # Ensure the key is added
+
+    # Add the Docker repository (ARM64 architecture)
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=arm64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release | lower }} stable"
+        state: present  # Ensure the repository is added
+
+    # Install Docker CE (Community Edition)
+    - name: Install Docker
+      apt:
+        name: docker-ce  # Install Docker Engine
+        state: latest  # Get the latest available version
+
+    # Start and enable Docker service to run on boot
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started  # Ensure Docker is running
+        enabled: yes  # Enable Docker to start on boot
+
+    # Install Nginx (a lightweight web server)
+    - name: Install Nginx
+      apt:
+        name: nginx  # Install Nginx package
+        state: latest  # Ensure we get the latest version
+
+    # Start and enable Nginx service to run on boot
+    - name: Start and enable Nginx service
+      systemd:
+        name: nginx
+        state: started  # Ensure Nginx is running
+        enabled: yes  # Enable Nginx to start on boot
+
+    # Install Docker Compose Plugin (used to manage multi-container applications)
+    - name: Install Docker Compose Plugin
+      apt:
+        name: docker-compose-plugin  # Install the official Docker Compose plugin
+        state: present  # Ensure it is installed
+
+    # Verify if Docker is installed correctly
+    - name: Verify Docker installation
+      command: docker --version  # Run the Docker version command
+      register: docker_version  # Store the output in a variable
+      changed_when: false  # This command does not modify the system
+
+    # Verify if Nginx is installed correctly
+    - name: Verify Nginx installation
+      command: nginx -v  # Run the Nginx version command
+      register: nginx_version  # Store the output in a variable
+      changed_when: false  # This command does not modify the system
+
+    # Verify if Docker Compose is installed correctly
+    - name: Verify Docker Compose installation
+      command: docker compose version  # Run the Docker Compose version command
+      register: compose_version  # Store the output in a variable
+      changed_when: false  # This command does not modify the system
+
+    # Display the Docker version in the output
+    - name: Show Docker version
+      debug:
+        msg: "Docker version: {{ docker_version.stdout }}"
+
+    # Display the Nginx version in the output
+    - name: Show Nginx version
+      debug:
+        msg: "Nginx version: {{ nginx_version.stderr }}"
+
+    # Display the Docker Compose version in the output
+    - name: Show Docker Compose version
+      debug:
+        msg: "Docker Compose version: {{ compose_version.stdout }}"
